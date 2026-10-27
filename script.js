@@ -1,4 +1,23 @@
 /* StyleNest demo storefront — vanilla JavaScript */
+
+/* ------------------------------------------------------------------
+   COLOUR IMAGES — HOW TO ADD A PHOTO FOR EACH COLOUR
+   ------------------------------------------------------------------
+   Option A (simplest): drop files into  images/products/  named
+       <product id>-<colour name in lowercase>.jpg
+   Examples:   1-black.jpg   1-cream.jpg   1-olive.jpg   9-dark-blue.jpg
+   They are picked up automatically. No code change needed.
+
+   Option B: give a product an explicit list, e.g. add to product 1:
+       colorImages:{Black:"https://.../black-tee.jpg", Olive:"images/tee-olive.png"}
+
+   If no photo exists for a colour, the product's main image is shown and
+   a small "photo coming soon" note appears in Quick View (the image is
+   never faked with a CSS filter). Missing files are listed in the
+   browser console (F12) so you know exactly what to add.
+------------------------------------------------------------------- */
+const IMAGE_DIR = "images/products";
+
 const products = [
  {id:1,name:"Classic Cotton T-shirt",department:"Men",category:"T-shirts",price:499,oldPrice:699,rating:4.7,reviews:128,sizes:["S","M","L","XL","XXL"],colors:[["Cream","#e9e0d1"],["Black","#252525"],["Olive","#68735d"]],image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",tag:"Bestseller",isNew:false,description:"Your everyday essential, made from soft breathable cotton with a relaxed, easy-to-style fit."},
  {id:2,name:"Casual Denim Jeans",department:"Men",category:"Jeans",price:1299,oldPrice:1599,rating:4.6,reviews:84,sizes:["S","M","L","XL","XXL"],colors:[["Blue","#526c87"],["Black","#292929"]],image:"https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=800&q=80",tag:"",isNew:false,description:"A dependable denim staple with a comfortable mid-rise and a clean, timeless silhouette."},
@@ -32,6 +51,38 @@ let recentlyViewed = readStore("stylenest-recent", []);
 let visibleLimit = 12;
 const categoryNames = [...new Set(products.map(p=>p.category))];
 
+/* ---------- Colour → image handling ---------- */
+const cardColor = {};      // productId -> colour index chosen on the product card
+const imageCache = {};     // "productId-colourIndex" -> {src, exact}
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const colorKey = (p,i) => `${p.id}-${i}`;
+function colorCandidates(p,i){
+ const name=p.colors[i][0], list=[];
+ if(p.colorImages && p.colorImages[name]) list.push(p.colorImages[name]);
+ list.push(`${IMAGE_DIR}/${p.id}-${slug(name)}.jpg`);
+ return list;
+}
+/* Synchronous: the image already resolved for this colour, else the product's main image. */
+function knownImage(p,i){ const c=imageCache[colorKey(p,i)]; return c?c.src:p.image; }
+/* Asynchronous: finds the first image that really loads for this colour. */
+function resolveColorImage(p,i,done){
+ const key=colorKey(p,i);
+ if(imageCache[key]){done(imageCache[key]);return;}
+ const candidates=colorCandidates(p,i);
+ (function next(){
+  if(!candidates.length){
+   const result={src:p.image,exact:i===0};
+   imageCache[key]=result;
+   if(i>0)console.warn(`[StyleNest] Missing colour photo: ${IMAGE_DIR}/${p.id}-${slug(p.colors[i][0])}.jpg  (${p.name} – ${p.colors[i][0]})`);
+   done(result);return;
+  }
+  const src=candidates.shift(), img=new Image();
+  img.onload=()=>{imageCache[key]={src,exact:true};done(imageCache[key]);};
+  img.onerror=next;
+  img.src=src;
+ })();
+}
+
 function icons(){ if(window.lucide) lucide.createIcons(); }
 function toast(message){ const el=document.createElement("div");el.className="toast";el.innerHTML=`<i data-lucide="check-circle-2"></i><span>${message}</span>`;$("#toastRegion").append(el);icons();setTimeout(()=>el.remove(),3000); }
 function getProduct(id){return products.find(p=>p.id===Number(id));}
@@ -40,14 +91,14 @@ function inWishlist(id){return wishlist.some(x=>x.id===Number(id));}
 function cartCount(){return cart.reduce((sum,item)=>sum+item.qty,0);}
 function updateCounts(){ $("#cartCount").textContent=cartCount();$("#wishCount").textContent=wishlist.length;$("#drawerCartCount").textContent=`(${cartCount()})`;$("#drawerWishCount").textContent=`(${wishlist.length})`; }
 function productCard(p){
- const saved=inWishlist(p.id), disc=discount(p);
+ const saved=inWishlist(p.id), disc=discount(p), selColor=cardColor[p.id]||0;
  return `<article class="product-card" data-id="${p.id}">
-  <div class="product-image-wrap"><img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80'">
+  <div class="product-image-wrap"><img src="${knownImage(p,selColor)}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80'">
   ${p.isNew?'<span class="product-badge">NEW IN</span>':p.tag?`<span class="product-badge">${p.tag.toUpperCase()}</span>`:''}${disc?`<span class="product-badge sale" style="top:${p.isNew||p.tag?'39px':'10px'}">${disc}% OFF</span>`:''}
   <button class="wish-btn ${saved?'saved':''}" data-wish="${p.id}" aria-label="${saved?'Remove from':'Add to'} wishlist"><i data-lucide="heart"></i></button>
   <button class="quick-view" data-quick="${p.id}">QUICK VIEW +</button></div>
   <div class="product-info"><div class="product-meta"><span class="product-category">${p.department} · ${p.category}</span><span class="product-rating"><span>★</span> ${p.rating}</span></div><h3 class="product-name">${p.name}</h3><div class="product-price">${money(p.price)} ${p.oldPrice?`<span class="old-price">${money(p.oldPrice)}</span><span class="discount">${disc}% off</span>`:''}</div>
-  <div class="product-swatches">${p.colors.slice(0,4).map((c,i)=>`<span class="swatch ${i===0?'selected':''}" style="background:${c[1]}" title="${c[0]}"></span>`).join("")}</div>
+  <div class="product-swatches">${p.colors.slice(0,4).map((c,i)=>`<button type="button" class="swatch ${i===selColor?'selected':''}" data-card-color="${i}" style="background:${c[1]}" title="${c[0]}" aria-label="Colour: ${c[0]}" aria-pressed="${i===selColor}"></button>`).join("")}</div>
   <div class="product-card-bottom"><button class="add-cart" data-quick="${p.id}"><i data-lucide="shopping-bag"></i> Add to bag</button><button class="view-btn" data-quick="${p.id}" aria-label="View product"><i data-lucide="eye"></i></button></div></div></article>`;
 }
 function currentFilters(){
@@ -99,16 +150,16 @@ function toggleWishlist(id){
 }
 function addToCart(id,size,colorIndex=0,qty=1){
  const p=getProduct(id);if(!p)return;
- if(!size){toast("Please choose a size first");openQuickView(id);return;}
+ if(!size){toast("Please choose a size first");openQuickView(id,colorIndex);return;}
  const color=p.colors[colorIndex]||p.colors[0];const key=`${p.id}-${size}-${color[0]}`;
  const existing=cart.find(item=>item.key===key);
- if(existing)existing.qty+=qty;else cart.push({key,id:p.id,size,color:color[0],colorHex:color[1],qty});
+ if(existing)existing.qty+=qty;else cart.push({key,id:p.id,size,color:color[0],colorHex:color[1],image:knownImage(p,colorIndex),qty});
  saveStore("stylenest-cart",cart);updateCounts();renderCart();toast(`${p.name} added to your bag`);
 }
 function renderCart(){
  const host=$("#cartItems"),footer=$("#cartFooter");
  if(!cart.length){host.innerHTML=`<div class="drawer-empty"><i data-lucide="shopping-bag"></i><h3>Your bag is taking a break</h3><p>Find a few pieces that feel like you.</p><button class="btn btn-dark" data-close>Explore the collection</button></div>`;footer.innerHTML="";icons();return;}
- host.innerHTML=cart.map(item=>{const p=getProduct(item.id);return `<div class="cart-line"><img src="${p.image}" alt="${p.name}"><div><h3>${p.name}</h3><div class="line-sub">Size: ${item.size} · Color: ${item.color}</div><div class="line-price">${money(p.price)}</div><div class="quantity-control"><button data-qty="${item.key}" data-change="-1" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button data-qty="${item.key}" data-change="1" aria-label="Increase quantity">+</button></div></div><button class="line-remove" data-remove-cart="${item.key}" aria-label="Remove item"><i data-lucide="trash-2"></i></button></div>`}).join("");
+ host.innerHTML=cart.map(item=>{const p=getProduct(item.id);return `<div class="cart-line"><img src="${item.image||p.image}" alt="${p.name} in ${item.color}"><div><h3>${p.name}</h3><div class="line-sub">Size: ${item.size} · Color: ${item.color}</div><div class="line-price">${money(p.price)}</div><div class="quantity-control"><button data-qty="${item.key}" data-change="-1" aria-label="Decrease quantity">−</button><span>${item.qty}</span><button data-qty="${item.key}" data-change="1" aria-label="Increase quantity">+</button></div></div><button class="line-remove" data-remove-cart="${item.key}" aria-label="Remove item"><i data-lucide="trash-2"></i></button></div>`}).join("");
  const subtotal=cart.reduce((sum,item)=>sum+getProduct(item.id).price*item.qty,0),delivery=subtotal>=1499?0:99,total=subtotal+delivery;
  footer.innerHTML=`<div class="shipping-note">${delivery===0?"Lovely! Your delivery is on us.":`You're ${money(1499-subtotal)} away from free delivery.`}</div><div class="cart-totals"><span>Subtotal</span><span>${money(subtotal)}</span></div><div class="cart-totals"><span>Delivery</span><span>${delivery===0?"FREE":money(delivery)}</span></div><div class="cart-totals total"><span>Total</span><span>${money(total)}</span></div><button class="btn btn-dark" id="checkoutStart">Proceed to checkout <i data-lucide="arrow-up-right"></i></button><button class="btn btn-outline" data-close>Continue shopping</button><p class="line-sub" style="text-align:center;margin-top:12px">Demo checkout only. No real payment.</p>`;
  icons();
@@ -122,11 +173,27 @@ function openDrawer(which){closeDrawers();$("#overlay").classList.add("open");$(
 function closeDrawers(){$$(".drawer").forEach(d=>d.classList.remove("open"));$("#overlay").classList.remove("open");document.body.style.overflow="";}
 function openModal(html){$("#modalBody").innerHTML=html;$("#modalWrap").classList.remove("hidden");document.body.style.overflow="hidden";icons();}
 function closeModal(){$("#modalWrap").classList.add("hidden");document.body.style.overflow="";currentModalProduct=null;}
-function openQuickView(id){
- const p=getProduct(id);if(!p)return;currentModalProduct=p;modalSize="";modalColor=0;modalQty=1;
+
+/* Applies a colour choice inside Quick View: highlight, name, and the real image. */
+function showModalColor(i){
+ const p=currentModalProduct;if(!p||!p.colors[i])return;
+ modalColor=i;
+ $$("#modalColors .color-choice").forEach(b=>{const on=Number(b.dataset.color)===i;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",on);});
+ $("#selectedColorName").textContent=p.colors[i][0];
+ const img=$("#modalImage");if(img)img.alt=`${p.name} in ${p.colors[i][0]}`;
+ resolveColorImage(p,i,r=>{
+  if(currentModalProduct!==p||modalColor!==i)return;   // user already moved on
+  const el=$("#modalImage");
+  if(el&&el.getAttribute("src")!==r.src)el.src=r.src;
+  const note=$("#colorNote");if(note)note.classList.toggle("hidden",r.exact);
+ });
+}
+function openQuickView(id,colorIndex=0){
+ const p=getProduct(id);if(!p)return;currentModalProduct=p;modalSize="";modalColor=p.colors[colorIndex]?colorIndex:0;modalQty=1;
  recentlyViewed=[p.id,...recentlyViewed.filter(x=>x!==p.id)].slice(0,5);saveStore("stylenest-recent",recentlyViewed);
  const disc=discount(p);
- openModal(`<div class="quick-modal-grid"><img src="${p.image}" alt="${p.name}"><div class="quick-modal-copy"><span class="eyebrow">${p.department} / ${p.category}</span><h2>${p.name}</h2><div class="product-rating"><span>★</span> ${p.rating} <span style="color:var(--muted)">(${p.reviews} reviews)</span></div><div class="product-price">${money(p.price)} ${p.oldPrice?`<span class="old-price">${money(p.oldPrice)}</span><span class="discount">${disc}% off</span>`:""}</div><p>${p.description}</p><span class="choice-label">Choose size <span style="color:var(--accent)">*</span></span><div class="choice-row" id="modalSizes">${p.sizes.map(s=>`<button class="choice-btn" data-size="${s}">${s}</button>`).join("")}</div><span class="choice-label">Colour: <span id="selectedColorName">${p.colors[0][0]}</span></span><div class="choice-row" id="modalColors">${p.colors.map((c,i)=>`<button class="choice-btn color-choice ${i===0?'selected':''}" data-color="${i}" style="background:${c[1]}" aria-label="${c[0]}" title="${c[0]}"></button>`).join("")}</div><div class="quantity-row"><span class="choice-label" style="margin:0">Quantity</span><div class="quantity-control"><button id="modalQtyMinus">−</button><span id="modalQtyValue">1</span><button id="modalQtyPlus">+</button></div></div><button class="btn btn-dark" id="modalAddCart">Add to bag · ${money(p.price)} <i data-lucide="shopping-bag"></i></button><button class="btn btn-outline" id="modalWish">${inWishlist(p.id)?"♥ Saved to wishlist":"♡ Add to wishlist"}</button><div class="availability"><i data-lucide="check-circle-2" style="width:13px;vertical-align:middle"></i> In stock · Demo product information</div></div></div>`);
+ openModal(`<div class="quick-modal-grid"><img id="modalImage" src="${knownImage(p,modalColor)}" alt="${p.name} in ${p.colors[modalColor][0]}"><div class="quick-modal-copy"><span class="eyebrow">${p.department} / ${p.category}</span><h2>${p.name}</h2><div class="product-rating"><span>★</span> ${p.rating} <span style="color:var(--muted)">(${p.reviews} reviews)</span></div><div class="product-price">${money(p.price)} ${p.oldPrice?`<span class="old-price">${money(p.oldPrice)}</span><span class="discount">${disc}% off</span>`:""}</div><p>${p.description}</p><span class="choice-label">Choose size <span style="color:var(--accent)">*</span></span><div class="choice-row" id="modalSizes">${p.sizes.map(s=>`<button class="choice-btn" data-size="${s}">${s}</button>`).join("")}</div><span class="choice-label">Colour: <span id="selectedColorName">${p.colors[modalColor][0]}</span></span><div class="choice-row" id="modalColors">${p.colors.map((c,i)=>`<button type="button" class="choice-btn color-choice ${i===modalColor?'selected':''}" data-color="${i}" style="background:${c[1]}" aria-label="${c[0]}" aria-pressed="${i===modalColor}" title="${c[0]}"></button>`).join("")}</div><div id="colorNote" class="line-sub hidden" style="margin:-6px 0 12px">Photo for this colour is coming soon. Showing our standard image.</div><div class="quantity-row"><span class="choice-label" style="margin:0">Quantity</span><div class="quantity-control"><button id="modalQtyMinus">−</button><span id="modalQtyValue">1</span><button id="modalQtyPlus">+</button></div></div><button class="btn btn-dark" id="modalAddCart">Add to bag · ${money(p.price)} <i data-lucide="shopping-bag"></i></button><button class="btn btn-outline" id="modalWish">${inWishlist(p.id)?"♥ Saved to wishlist":"♡ Add to wishlist"}</button><div class="availability"><i data-lucide="check-circle-2" style="width:13px;vertical-align:middle"></i> In stock · Demo product information</div></div></div>`);
+ showModalColor(modalColor);
 }
 function openInfo(title){
  const copy={
@@ -160,15 +227,29 @@ function toggleTheme(){const dark=!document.body.classList.contains("dark");docu
 function searchOpen(){ $("#searchBar").classList.add("open");$("#searchInput").focus(); }
 function wireEvents(){
  document.addEventListener("click",e=>{
+  /* Colour swatch on a product card: change that card's image right away. */
+  const swatch=e.target.closest("[data-card-color]");
+  if(swatch){
+   e.preventDefault();
+   const card=swatch.closest(".product-card"),p=getProduct(card.dataset.id),i=Number(swatch.dataset.cardColor);
+   cardColor[p.id]=i;
+   $$("[data-card-color]",card).forEach(s=>{const on=s===swatch;s.classList.toggle("selected",on);s.setAttribute("aria-pressed",on);});
+   resolveColorImage(p,i,r=>{
+    if(cardColor[p.id]!==i)return;
+    const img=$(".product-image-wrap img",card);
+    if(img)img.src=r.src;
+   });
+   return;
+  }
   const cat=e.target.closest("[data-category]");if(cat){e.preventDefault();setCategory(cat.dataset.category);$("#mainNav").classList.remove("open");}
   const tag=e.target.closest("[data-tag]");if(tag){e.preventDefault();setTag(tag.dataset.tag);}
-  const quick=e.target.closest("[data-quick]");if(quick){openQuickView(quick.dataset.quick);}
+  const quick=e.target.closest("[data-quick]");if(quick){openQuickView(quick.dataset.quick,cardColor[Number(quick.dataset.quick)]||0);}
   const wish=e.target.closest("[data-wish]");if(wish){e.preventDefault();toggleWishlist(wish.dataset.wish);}
   const close=e.target.closest("[data-close]");if(close)closeDrawers();
   const remove=e.target.closest("[data-remove-cart]");if(remove){cart=cart.filter(x=>x.key!==remove.dataset.removeCart);saveStore("stylenest-cart",cart);updateCounts();renderCart();toast("Item removed from your bag");}
   const qty=e.target.closest("[data-qty]");if(qty){const item=cart.find(x=>x.key===qty.dataset.qty);if(item){item.qty+=Number(qty.dataset.change);if(item.qty<=0)cart=cart.filter(x=>x.key!==item.key);saveStore("stylenest-cart",cart);updateCounts();renderCart();}}
   const wishRemove=e.target.closest("[data-wish-remove]");if(wishRemove)toggleWishlist(wishRemove.dataset.wishRemove);
-  const wishCart=e.target.closest("[data-wish-cart]");if(wishCart){const p=getProduct(wishCart.dataset.wishCart);closeDrawers();openQuickView(p.id);}
+  const wishCart=e.target.closest("[data-wish-cart]");if(wishCart){const p=getProduct(wishCart.dataset.wishCart);closeDrawers();openQuickView(p.id,cardColor[p.id]||0);}
   const removeTag=e.target.closest("[data-remove-tag]");if(removeTag){if(removeTag.dataset.removeTag.startsWith("Search:")){searchTerm="";$("#searchInput").value="";}else if(["Men","Women","Kids"].includes(removeTag.dataset.removeTag))currentCategory="All";else currentTag="";renderProducts();}
   const info=e.target.closest("[data-info]");if(info){e.preventDefault();openInfo(info.dataset.info);}
  });
@@ -198,36 +279,12 @@ function wireEvents(){
  $("#modalWrap").addEventListener("click",e=>{if(e.target===$("#modalWrap"))closeModal();});
  $("#modalBody").addEventListener("click",e=>{
   const size=e.target.closest("[data-size]");if(size){modalSize=size.dataset.size;$$("[data-size]",$("#modalBody")).forEach(b=>b.classList.toggle("selected",b===size));}
-const color = e.target.closest("[data-color]");
-
-if (color && currentModalProduct) {
-    modalColor = Number(color.dataset.color);
-
-    // Highlight the selected color
-    $$(".color-choice", $("#modalBody")).forEach(button => {
-        button.classList.toggle("selected", button === color);
-    });
-
-   // Update the selected color name
-const selectedColor = currentModalProduct.colors[modalColor][0];
-$("#selectedColorName").textContent = selectedColor;
-
-// Change the product image when a color is selected
-const image = $("#modalBody .quick-modal-grid > img");
-
-if (image && currentModalProduct.colorImages) {
-    image.src =
-        currentModalProduct.colorImages[selectedColor] ||
-        currentModalProduct.image;
-
-    image.style.filter = "none";
-}
-}
-
+  const color=e.target.closest("[data-color]");
+  if(color&&currentModalProduct)showModalColor(Number(color.dataset.color));
   if(e.target.closest("#modalQtyMinus")){modalQty=Math.max(1,modalQty-1);$("#modalQtyValue").textContent=modalQty;}
   if(e.target.closest("#modalQtyPlus")){modalQty=Math.min(10,modalQty+1);$("#modalQtyValue").textContent=modalQty;}
-  if(e.target.closest("#modalAddCart")){if(!modalSize){toast("Please choose a size first");$("#modalSizes").scrollIntoView({behavior:"smooth",block:"center"});return;}const p=currentModalProduct;addToCart(p.id,modalSize,modalColor,modalQty);closeModal();}
-  if(e.target.closest("#modalWish")){const id=currentModalProduct.id;toggleWishlist(id);$("#modalWish").textContent=inWishlist(id)?"♥ Saved to wishlist":"♡ Add to wishlist";}
+  if(e.target.closest("#modalAddCart")){if(!modalSize){toast("Please choose a size first");$("#modalSizes").scrollIntoView({behavior:"smooth",block:"center"});return;}const p=currentModalProduct;cardColor[p.id]=modalColor;addToCart(p.id,modalSize,modalColor,modalQty);closeModal();renderProducts();}
+  if(e.target.closest("#modalWish")){const id=currentModalProduct.id;cardColor[id]=modalColor;toggleWishlist(id);$("#modalWish").textContent=inWishlist(id)?"♥ Saved to wishlist":"♡ Add to wishlist";}
   if(e.target.closest("#accountSwitch"))openAccount($("#accountSwitch").textContent==="Create an account"?"register":"login");
   if(e.target.closest("#infoDone"))closeModal();
   if(e.target.closest("#checkoutStart"))openCheckout();
@@ -243,6 +300,5 @@ if (image && currentModalProduct.colorImages) {
  window.addEventListener("scroll",()=>$("#floatingTop").classList.toggle("visible",window.scrollY>500));
  document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeDrawers();$("#mainNav").classList.remove("open");}});
 }
-function openDrawer(which){closeDrawers();$("#overlay").classList.add("open");$(which).classList.add("open");document.body.style.overflow="hidden";}
 function init(){initFilters();themeInit();renderProducts();renderCart();renderWishlist();updateCounts();wireEvents();icons();}
 document.addEventListener("DOMContentLoaded",init);
