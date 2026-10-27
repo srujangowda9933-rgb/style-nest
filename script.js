@@ -208,42 +208,18 @@ if (color && currentModalProduct) {
         button.classList.toggle("selected", button === color);
     });
 
-    // Update the selected color name
-    const selectedColor = currentModalProduct.colors[modalColor][0];
+   // Update the selected color name
+const selectedColor = currentModalProduct.colors[modalColor][0];
+$("#selectedColorName").textContent = selectedColor;
 
-    $("#selectedColorName").textContent = selectedColor;
+// Keep the original product photo unchanged.
+// The selected color name and swatch will still update.
+const image = $("#modalBody .quick-modal-grid > img");
 
-    // Apply a visual color preview
-    const image = $("#modalBody .quick-modal-grid > img");
+if (image) {
+    image.style.filter = "none";
+}
 
-    const colorFilters = {
-        "Black": "brightness(0.65) saturate(0.7)",
-        "Blue": "hue-rotate(180deg) saturate(1.3)",
-        "Dark blue": "hue-rotate(180deg) saturate(1.4) brightness(0.8)",
-        "Grey": "grayscale(0.7)",
-        "White": "brightness(1.2) saturate(0.5)",
-        "Cream": "sepia(0.2) brightness(1.1)",
-        "Olive": "hue-rotate(35deg) saturate(0.8)",
-        "Green": "hue-rotate(60deg) saturate(0.9)",
-        "Pink": "hue-rotate(300deg) saturate(0.9)",
-        "Red": "hue-rotate(320deg) saturate(1.3)",
-        "Yellow": "hue-rotate(20deg) saturate(1.3)",
-        "Rust": "hue-rotate(330deg) saturate(1.1)",
-        "Teal": "hue-rotate(130deg) saturate(1.1)",
-        "Sand": "sepia(0.3) saturate(0.7)",
-        "Tan": "sepia(0.4) saturate(0.8)",
-        "Beige": "sepia(0.2) saturate(0.7)",
-        "Gold": "sepia(0.6) saturate(1.2)",
-        "Rose": "hue-rotate(310deg) saturate(0.8)",
-        "Terracotta": "hue-rotate(330deg)",
-        "Sage": "hue-rotate(40deg) saturate(0.5)",
-        "Oat": "sepia(0.2) brightness(1.1)",
-        "Floral": "saturate(1.2)"
-    };
-
-    if (image) {
-        image.style.filter = colorFilters[selectedColor] || "none";
-    }
 }
   if(e.target.closest("#modalQtyMinus")){modalQty=Math.max(1,modalQty-1);$("#modalQtyValue").textContent=modalQty;}
   if(e.target.closest("#modalQtyPlus")){modalQty=Math.min(10,modalQty+1);$("#modalQtyValue").textContent=modalQty;}
