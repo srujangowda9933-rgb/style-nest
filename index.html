@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StyleNest — Wear Your Style. Own Your Story.">
+  <title>StyleNest — Wear Your Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="announcement">A little style goes a long way. <strong>Enjoy 10% off</strong> your first order with NEST10 <span>✦</span></div>
+  <header class="site-header">
+    <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Open menu"><i data-lucide="menu"></i></button>
+    <a class="logo" href="#" aria-label="StyleNest home">style<span>nest</span><b>.</b><small>WEAR YOUR STORY</small></a>
+    <nav class="main-nav" id="mainNav">
+      <a href="#" class="nav-link active" data-category="All">Home</a>
+      <a href="#shop" class="nav-link" data-category="Men">Men</a>
+      <a href="#shop" class="nav-link" data-category="Women">Women</a>
+      <a href="#shop" class="nav-link" data-category="Kids">Kids</a>
+      <a href="#shop" class="nav-link" data-tag="new">New Arrivals</a>
+      <a href="#shop" class="nav-link sale-link" data-tag="sale">Sale</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="searchToggle" aria-label="Search"><i data-lucide="search"></i></button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="Open wishlist"><i data-lucide="heart"></i><span class="count-badge" id="wishCount">0</span></button>
+      <button class="icon-btn cart-trigger" id="cartOpen" aria-label="Open cart"><i data-lucide="shopping-bag"></i><span class="count-badge" id="cartCount">0</span></button>
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode"><i data-lucide="moon"></i></button>
+      <button class="account-btn" id="accountOpen">Sign in</button>
+    </div>
+  </header>
+
+  <div class="search-bar" id="searchBar">
+    <i data-lucide="search"></i><input id="searchInput" type="search" placeholder="Search tees, dresses, denim..." aria-label="Search products">
+    <button id="clearSearch" class="text-button">Clear</button>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="eyebrow-line"></span> THE EVERYDAY EDIT · 2026</span>
+        <h1>Discover<br>your <em>style.</em></h1>
+        <p>Thoughtful pieces. Effortless outfits.<br>Made for every version of you.</p>
+        <div class="hero-buttons">
+          <a href="#shop" class="btn btn-dark" data-category="Men">Shop men <i data-lucide="arrow-up-right"></i></a>
+          <a href="#shop" class="btn btn-outline" data-category="Women">Shop women <i data-lucide="arrow-up-right"></i></a>
+        </div>
+        <div class="hero-note"><div class="avatar-stack"><span>J</span><span>M</span><span>A</span></div><div><strong>10k+ happy customers</strong><small>Everyday style, loved by you</small></div></div>
+      </div>
+      <div class="hero-visual">
+        <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1400&q=85" alt="Friends browsing a stylish clothing collection">
+        <div class="hero-sticker"><span>STYLE</span><b>is a feeling.</b><i>✳</i></div>
+        <div class="hero-caption"><span>01 / 03</span><span>THE NEW SEASON</span></div>
+      </div>
+      <div class="hero-side-label">FIND YOUR FIT · FEEL YOUR BEST</div>
+    </section>
+
+    <section class="trust-strip">
+      <div><i data-lucide="truck"></i><span><strong>Free delivery</strong><small>On orders over ₹1,499</small></span></div>
+      <div><i data-lucide="refresh-cw"></i><span><strong>Easy returns</strong><small>Within 7 days</small></span></div>
+      <div><i data-lucide="shield-check"></i><span><strong>Quality first</strong><small>Pieces made to last</small></span></div>
+      <div><i data-lucide="heart-handshake"></i><span><strong>Style for all</strong><small>Made for every you</small></span></div>
+    </section>
+
+    <section class="category-section section-wrap">
+      <div class="section-heading"><div><span class="eyebrow">A LITTLE SOMETHING FOR EVERYONE</span><h2>Find your <em>kind</em> of style</h2></div><a href="#shop" class="underlined-link" data-category="All">Explore all <i data-lucide="arrow-up-right"></i></a></div>
+      <div class="category-grid">
+        <button class="category-tile category-men" data-category="Men"><img src="https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=900&q=80" alt="Men's contemporary fashion"><span class="tile-label"><small>01 / THE CLASSICS</small><strong>For him</strong><b>Shop men <i data-lucide="arrow-up-right"></i></b></span></button>
+        <button class="category-tile category-women" data-category="Women"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80" alt="Women's everyday fashion"><span class="tile-label"><small>02 / THE STATEMENT</small><strong>For her</strong><b>Shop women <i data-lucide="arrow-up-right"></i></b></span></button>
+        <button class="category-tile category-kids" data-category="Kids"><img src="https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=900&q=80" alt="Children in playful clothing"><span class="tile-label"><small>03 / LITTLE MOMENTS</small><strong>For them</strong><b>Shop kids <i data-lucide="arrow-up-right"></i></b></span></button>
+      </div>
+    </section>
+
+    <section class="shop-section section-wrap" id="shop">
+      <div class="section-heading shop-heading"><div><span class="eyebrow">GOOD LOOKS, GOOD FEELING</span><h2 id="shopTitle">The <em>latest</em> & greatest</h2><p class="section-subtitle">Your next favourite outfit is right here.</p></div><span class="product-count" id="productCount">0 pieces</span></div>
+      <div class="shop-controls">
+        <button class="filter-toggle btn btn-soft" id="filterToggle"><i data-lucide="sliders-horizontal"></i> Filters <span id="filterCount"></span></button>
+        <div class="filter-chips" id="categoryChips">
+          <button class="chip active" data-category="All">All pieces</button><button class="chip" data-category="Men">Men</button><button class="chip" data-category="Women">Women</button><button class="chip" data-category="Kids">Kids</button>
+        </div>
+        <label class="sort-select"><span>Sort by</span><select id="sortSelect"><option value="featured">Featured</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="newest">Newest arrivals</option><option value="rating">Top rated</option></select></label>
+      </div>
+      <div class="shop-layout">
+        <aside class="filter-panel" id="filterPanel">
+          <div class="filter-title"><strong>Refine your edit</strong><button id="resetFilters" class="text-button">Reset all</button></div>
+          <div class="filter-group"><h3>Department</h3><label><input type="radio" name="department" value="All" checked> All pieces</label><label><input type="radio" name="department" value="Men"> Men</label><label><input type="radio" name="department" value="Women"> Women</label><label><input type="radio" name="department" value="Kids"> Kids</label></div>
+          <div class="filter-group"><h3>Category</h3><select id="subcategoryFilter"><option value="All">All categories</option></select></div>
+          <div class="filter-group"><h3>Price range</h3><div class="price-inputs"><label>Min ₹<input type="number" id="minPrice" min="0" value="0"></label><label>Max ₹<input type="number" id="maxPrice" min="0" value="5000"></label></div><input type="range" id="maxRange" min="0" max="5000" value="5000" step="100"><div class="range-labels"><span>₹0</span><span>₹5,000+</span></div></div>
+          <div class="filter-group"><h3>Size</h3><div class="size-filter" id="sizeFilters"><label><input type="checkbox" value="XS"> XS</label><label><input type="checkbox" value="S"> S</label><label><input type="checkbox" value="M"> M</label><label><input type="checkbox" value="L"> L</label><label><input type="checkbox" value="XL"> XL</label><label><input type="checkbox" value="XXL"> XXL</label></div></div>
+          <div class="filter-group"><h3>Customer rating</h3><label><input type="radio" name="rating" value="0" checked> All ratings</label><label><input type="radio" name="rating" value="4"> <span class="stars">★★★★</span> & up</label><label><input type="radio" name="rating" value="4.5"> <span class="stars">★★★★★</span> 4.5 & up</label></div>
+          <div class="filter-group"><label class="check-line"><input type="checkbox" id="saleOnly"> On sale only</label><label class="check-line"><input type="checkbox" id="newOnly"> New arrivals</label></div>
+          <button class="btn btn-dark apply-filters" id="applyFilters">Show pieces</button>
+        </aside>
+        <div class="products-area">
+          <div class="active-filters" id="activeFilters"></div>
+          <div class="product-grid" id="productGrid"></div>
+          <div class="empty-state hidden" id="emptyState"><div class="empty-icon"><i data-lucide="search-x"></i></div><h3>No pieces found</h3><p>Try changing your filters or search for something else.</p><button class="btn btn-dark" id="emptyReset">Reset filters</button></div>
+          <button class="btn btn-outline load-more hidden" id="loadMore">Load more pieces</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="promo-banner section-wrap">
+      <div class="promo-image"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85" alt="Fashion editorial featuring a modern outfit"></div>
+      <div class="promo-copy"><span class="eyebrow">A FRESH TAKE ON EVERYDAY</span><h2>Make room for<br><em>something new.</em></h2><p>Easy layers, beautiful basics, and the little details that make an outfit yours.</p><a href="#shop" class="btn btn-dark" data-tag="new">Shop new arrivals <i data-lucide="arrow-up-right"></i></a><span class="promo-scribble">your next<br>favourite ♡</span></div>
+    </section>
+
+    <section class="reviews-section section-wrap">
+      <div class="section-heading"><div><span class="eyebrow">KIND WORDS, REAL STYLE</span><h2>Love looks good <em>on you.</em></h2></div><div class="review-score"><span class="stars">★★★★★</span><strong>4.8/5</strong><small>From our lovely community</small></div></div>
+      <div class="review-grid"><article class="review-card"><div class="stars">★★★★★</div><p>“The fit is lovely and the fabric feels even better than I expected. My new everyday favourite.”</p><div class="review-person"><span class="review-avatar">A</span><span><strong>Ananya R.</strong><small>Verified shopper · Bengaluru</small></span><i data-lucide="badge-check"></i></div></article><article class="review-card"><div class="stars">★★★★★</div><p>“Simple, stylish, and easy to mix with everything I own. The little details are so good.”</p><div class="review-person"><span class="review-avatar avatar-two">R</span><span><strong>Rohan M.</strong><small>Verified shopper · Pune</small></span><i data-lucide="badge-check"></i></div></article><article class="review-card"><div class="stars">★★★★★</div><p>“Found something for the whole family. The kids' collection is adorable and comfy.”</p><div class="review-person"><span class="review-avatar avatar-three">S</span><span><strong>Shreya K.</strong><small>Verified shopper · Chennai</small></span><i data-lucide="badge-check"></i></div></article></div>
+    </section>
+
+    <section class="newsletter">
+      <div class="newsletter-mark">✳</div><span class="eyebrow">A NOTE FROM STYLENEST</span><h2>A little style in your <em>inbox.</em></h2><p>New drops, outfit ideas, and 10% off your first order.</p><form id="newsletterForm" class="newsletter-form"><input type="email" id="newsletterEmail" placeholder="Your email address" required aria-label="Your email address"><button class="btn btn-dark" type="submit">Count me in <i data-lucide="arrow-up-right"></i></button></form><small class="privacy-note">By subscribing, you agree to our demo newsletter terms. No spam, ever.</small>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-main"><div class="footer-brand"><a class="logo footer-logo" href="#">style<span>nest</span><b>.</b><small>WEAR YOUR STORY</small></a><p>Clothes for your real life.<br>Made for the way you move.</p><div class="social-links"><a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a><a href="#" aria-label="Facebook"><i data-lucide="facebook"></i></a><a href="#" aria-label="Pinterest"><i data-lucide="pin"></i></a></div></div><div class="footer-col"><h3>Explore</h3><a href="#shop" data-category="Men">Men's collection</a><a href="#shop" data-category="Women">Women's collection</a><a href="#shop" data-category="Kids">Kids' collection</a><a href="#shop" data-tag="new">New arrivals</a><a href="#shop" data-tag="sale">Sale edit</a></div><div class="footer-col"><h3>Need a hand?</h3><a href="#footerInfo" data-info="About StyleNest">About us</a><a href="#footerInfo" data-info="Contact">Contact</a><a href="#footerInfo" data-info="FAQs">FAQs</a><a href="#footerInfo" data-info="Shipping">Shipping</a><a href="#footerInfo" data-info="Returns">Returns</a></div><div class="footer-col"><h3>The fine print</h3><a href="#footerInfo" data-info="Privacy policy">Privacy policy</a><a href="#footerInfo" data-info="Terms of use">Terms of use</a><a href="#footerInfo" data-info="Demo store notice">Demo store notice</a><div class="payment-note"><i data-lucide="lock-keyhole"></i> Safe demo shopping</div></div></div><div class="footer-bottom"><span>© 2026 StyleNest. Made for your everyday.</span><span>Prices and products are sample demo content.</span><button id="backToTop" aria-label="Back to top"><i data-lucide="arrow-up"></i> Back to top</button></div>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Shopping cart"><div class="drawer-header"><div><span class="eyebrow">YOUR EDIT</span><h2>Your bag <span id="drawerCartCount">(0)</span></h2></div><button class="icon-btn close-drawer" data-close aria-label="Close cart"><i data-lucide="x"></i></button></div><div class="drawer-body" id="cartItems"></div><div class="drawer-footer" id="cartFooter"></div></aside>
+  <aside class="drawer" id="wishlistDrawer" aria-label="Wishlist"><div class="drawer-header"><div><span class="eyebrow">SAVED FOR LATER</span><h2>Your wishlist <span id="drawerWishCount">(0)</span></h2></div><button class="icon-btn close-drawer" data-close aria-label="Close wishlist"><i data-lucide="x"></i></button></div><div class="drawer-body" id="wishlistItems"></div></aside>
+
+  <div class="modal-wrap hidden" id="modalWrap" role="dialog" aria-modal="true"><div class="modal" id="modalContent"><button class="icon-btn modal-close" id="modalClose" aria-label="Close"><i data-lucide="x"></i></button><div id="modalBody"></div></div></div>
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <button class="back-top-floating" id="floatingTop" aria-label="Back to top"><i data-lucide="arrow-up"></i></button>
+  <div class="demo-ribbon">DEMO STORE · NO REAL PAYMENTS</div>
+  <script src="script.js"></script>
+</body>
+</html>
