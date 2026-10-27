@@ -212,15 +212,18 @@ if (color && currentModalProduct) {
 const selectedColor = currentModalProduct.colors[modalColor][0];
 $("#selectedColorName").textContent = selectedColor;
 
-// Keep the original product photo unchanged.
-// The selected color name and swatch will still update.
+// Change the product image when a color is selected
 const image = $("#modalBody .quick-modal-grid > img");
 
-if (image) {
+if (image && currentModalProduct.colorImages) {
+    image.src =
+        currentModalProduct.colorImages[selectedColor] ||
+        currentModalProduct.image;
+
     image.style.filter = "none";
 }
-
 }
+
   if(e.target.closest("#modalQtyMinus")){modalQty=Math.max(1,modalQty-1);$("#modalQtyValue").textContent=modalQty;}
   if(e.target.closest("#modalQtyPlus")){modalQty=Math.min(10,modalQty+1);$("#modalQtyValue").textContent=modalQty;}
   if(e.target.closest("#modalAddCart")){if(!modalSize){toast("Please choose a size first");$("#modalSizes").scrollIntoView({behavior:"smooth",block:"center"});return;}const p=currentModalProduct;addToCart(p.id,modalSize,modalColor,modalQty);closeModal();}
